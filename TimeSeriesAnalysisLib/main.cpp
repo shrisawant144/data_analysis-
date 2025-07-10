@@ -2,6 +2,10 @@
 #include <vector>
 #include <complex>
 #include "TimeSeriesAnalysis.h"
+#include "../matplotlib-cpp/matplotlibcpp.h"
+#include <iostream>
+#include <vector>
+#include <complex>
 
 int main()
 {
@@ -78,6 +82,81 @@ int main()
         std::cerr << "Error: " << ex.what() << std::endl;
         return 1;
     }
+
+    // Visualization using matplotlib-cpp
+    namespace plt = matplotlibcpp;
+
+    // Plot original data
+    std::vector<int> indices(data.size());
+    for (size_t i = 0; i < data.size(); ++i)
+        indices[i] = i + 1;
+    plt::plot(indices, data);
+    plt::title("Original Data");
+    plt::show();
+
+    // Plot moving average
+    plt::clf();
+    std::vector<int> ma_indices(ma.size());
+    for (size_t i = 0; i < ma.size(); ++i)
+        ma_indices[i] = i + 1;
+    plt::plot(ma_indices, ma);
+    plt::title("Moving Average");
+    plt::show();
+
+    // Plot exponential smoothing
+    plt::clf();
+    std::vector<int> es_indices(es.size());
+    for (size_t i = 0; i < es.size(); ++i)
+        es_indices[i] = i + 1;
+    plt::plot(es_indices, es);
+    plt::title("Exponential Smoothing");
+    plt::show();
+
+    // Plot seasonal decomposition components
+    plt::clf();
+    std::vector<int> trend_indices(trend.size());
+    for (size_t i = 0; i < trend.size(); ++i)
+        trend_indices[i] = i + 1;
+    plt::plot(trend_indices, trend);
+    plt::title("Seasonal Decomposition - Trend");
+    plt::show();
+
+    plt::clf();
+    std::vector<int> seasonal_indices(seasonal.size());
+    for (size_t i = 0; i < seasonal.size(); ++i)
+        seasonal_indices[i] = i + 1;
+    plt::plot(seasonal_indices, seasonal);
+    plt::title("Seasonal Decomposition - Seasonal");
+    plt::show();
+
+    plt::clf();
+    std::vector<int> residual_indices(residual.size());
+    for (size_t i = 0; i < residual.size(); ++i)
+        residual_indices[i] = i + 1;
+    plt::plot(residual_indices, residual);
+    plt::title("Seasonal Decomposition - Residual");
+    plt::show();
+
+    // Plot Fourier transform magnitudes
+    plt::clf();
+    std::vector<int> ft_indices(ft.size());
+    for (size_t i = 0; i < ft.size(); ++i)
+        ft_indices[i] = i + 1;
+    std::vector<double> ft_magnitudes;
+    for (const auto &c : ft)
+        ft_magnitudes.push_back(std::abs(c));
+    plt::plot(ft_indices, ft_magnitudes);
+    plt::title("Fourier Transform Magnitudes");
+    plt::show();
+
+    // Plot LSTM prediction
+    plt::clf();
+    std::vector<int> pred_indices(prediction.size());
+    for (size_t i = 0; i < prediction.size(); ++i)
+        pred_indices[i] = i + 1;
+    plt::plot(pred_indices, prediction);
+    plt::title("LSTM Model Prediction");
+    plt::show();
 
     return 0;
 }

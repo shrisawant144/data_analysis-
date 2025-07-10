@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include "RegressionAnalysis.h"
+#include "../matplotlib-cpp/matplotlibcpp.h"
+#include <iostream>
+#include <vector>
 
 int main()
 {
@@ -64,6 +67,25 @@ int main()
     {
         std::cerr << "Error: " << ex.what() << std::endl;
     }
+
+    // Visualization using matplotlib-cpp
+    namespace plt = matplotlibcpp;
+
+    // Plot multiple linear regression coefficients
+    std::vector<int> indices_double(coefficients_double.size());
+    for (size_t i = 0; i < coefficients_double.size(); ++i)
+        indices_double[i] = i + 1;
+    plt::bar(indices_double, coefficients_double);
+    plt::title("Multiple Linear Regression Coefficients (double)");
+    plt::show();
+
+    // Plot logistic regression coefficients (double)
+    std::vector<int> indices_logistic(logisticCoeffs_double.size());
+    for (size_t i = 0; i < logisticCoeffs_double.size(); ++i)
+        indices_logistic[i] = i + 1;
+    plt::bar(indices_logistic, logisticCoeffs_double);
+    plt::title("Logistic Regression Coefficients (double)");
+    plt::show();
 
     return 0;
 }

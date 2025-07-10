@@ -2,6 +2,10 @@
 #include <vector>
 #include <string>
 #include "EDA.h"
+#include "../matplotlib-cpp/matplotlibcpp.h"
+#include <numeric>
+#include <algorithm>
+#include <cmath>
 
 int main()
 {
@@ -62,6 +66,58 @@ int main()
         double sq_sum = std::inner_product(data.begin(), data.end(), data.begin(), 0.0);
         double stdev = std::sqrt(sq_sum / data.size() - std::pow(std::accumulate(data.begin(), data.end(), 0.0) / data.size(), 2));
         std::cout << "Standard Deviation: " << stdev << std::endl;
+
+        // Visualization using matplotlib-cpp
+        namespace plt = matplotlibcpp;
+
+        // Plot histogram
+        std::vector<double> binCenters(counts.size());
+        for (size_t i = 0; i < counts.size(); ++i)
+        {
+            binCenters[i] = (binEdges[i] + binEdges[i + 1]) / 2.0;
+        }
+        plt::bar(binCenters, std::vector<double>(counts.begin(), counts.end()));
+        plt::title("Histogram");
+        plt::show();
+
+        // Plot box plot using vertical lines
+        plt::clf();
+        plt::axvline(min, 0, 1, {{"color", "blue"}, {"label", "Min"}});
+        plt::axvline(q1, 0, 1, {{"color", "cyan"}, {"label", "Q1"}});
+        plt::axvline(median, 0, 1, {{"color", "green"}, {"label", "Median"}});
+        plt::axvline(q3, 0, 1, {{"color", "yellow"}, {"label", "Q3"}});
+        plt::axvline(max, 0, 1, {{"color", "red"}, {"label", "Max"}});
+        plt::title("Box Plot Stats");
+        plt::legend();
+        plt::show();
+
+        // Plot scatter plot
+        plt::scatter(x, y);
+        plt::title("Scatter Plot");
+        plt::show();
+
+        // Plot correlation heatmap
+        // Convert dataset to a flat array and provide dimensions for imshow
+        int rows = dataset.size();
+        int cols = dataset[0].size();
+        std::vector<double> flat_data;
+        for (const auto &row : dataset)
+        {
+            flat_data.insert(flat_data.end(), row.begin(), row.end());
+        }
+        // Convert double data to unsigned char for imshow
+        std::vector<unsigned char> uchar_data(flat_data.size());
+        double min_val = *std::min_element(flat_data.begin(), flat_data.end());
+        double max_val = *std::max_element(flat_data.begin(), flat_data.end());
+        for (size_t i = 0; i < flat_data.size(); ++i)
+        {
+            uchar_data[i] = static_cast<unsigned char>(255 * (flat_data[i] - min_val) / (max_val - min_val));
+        }
+        // matplotlib-cpp imshow returns void, so cannot assign to img
+        plt::imshow(uchar_data.data(), rows, cols, 1);
+        plt::colorbar();
+        plt::title("Correlation Heatmap");
+        plt::show();
     }
     catch (const std::exception &ex)
     {

@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include "DescriptiveStatistics.h"
+#include "../matplotlib-cpp/matplotlibcpp.h"
+#include <cmath>
 
 int main()
 {
@@ -62,6 +64,32 @@ int main()
     std::cout << "25th Percentile (Q1): " << DescriptiveStatistics::quartile(dataDouble, 1) << std::endl;
     std::cout << "50th Percentile (Q2): " << DescriptiveStatistics::quartile(dataDouble, 2) << std::endl;
     std::cout << "75th Percentile (Q3): " << DescriptiveStatistics::quartile(dataDouble, 3) << std::endl;
+
+    // Visualization of Descriptive Statistics
+    namespace plt = matplotlibcpp;
+
+    // Plot raw data points
+    plt::scatter(dataDouble, std::vector<double>(dataDouble.size(), 0), 50);
+
+    // Calculate statistics
+    double mean_val = DescriptiveStatistics::mean(dataDouble);
+    double median_val = DescriptiveStatistics::median(dataDouble);
+    std::vector<double> modes = DescriptiveStatistics::mode(dataDouble);
+
+    // Plot mean, median, and mode as vertical lines
+    plt::axvline(mean_val, 0, 1, {{"color", "red"}, {"label", "Mean"}});
+    plt::axvline(median_val, 0, 1, {{"color", "green"}, {"label", "Median"}});
+    for (auto mode_val : modes)
+    {
+        plt::axvline(mode_val, 0, 1, {{"color", "blue"}, {"label", "Mode"}});
+    }
+
+    // Add title and legend
+    plt::title("Descriptive Statistics Visualization");
+    plt::legend();
+
+    // Show plot
+    plt::show();
 
     return 0;
 }

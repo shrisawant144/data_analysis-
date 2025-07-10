@@ -1,6 +1,14 @@
 #include <iostream>
 #include <vector>
 #include "InferentialStatistics.h"
+#include "../matplotlib-cpp/matplotlibcpp.h"
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include "../matplotlib-cpp/matplotlibcpp.h"
+#include <iostream>
+#include <vector>
+#include <cmath>
 
 int main()
 {
@@ -50,7 +58,8 @@ int main()
         // Linear regression example
         std::vector<double> x = {1, 2, 3, 4, 5};
         std::vector<double> y = {2, 4, 5, 4, 5};
-        auto [slope, intercept] = InferentialStatistics::linearRegression(x, y);
+        double slope, intercept;
+        std::tie(slope, intercept) = InferentialStatistics::linearRegression(x, y);
         std::cout << "Linear regression slope: " << slope << ", intercept: " << intercept << std::endl;
 
         // Correlation example
@@ -61,6 +70,55 @@ int main()
     {
         std::cerr << "Error: " << ex.what() << std::endl;
     }
+
+    // Calculate confidence interval for plotting
+    double tCritical = 2.447; // example critical t-value for 95% confidence, df=6
+    auto ci = InferentialStatistics::confidenceInterval(sampleData, 0.95, tCritical);
+
+    // Visualization using matplotlib-cpp
+    namespace plt = matplotlibcpp;
+
+    // Plot sample data points
+    std::vector<double> indices(sampleData.size());
+    for (size_t i = 0; i < sampleData.size(); ++i)
+        indices[i] = i + 1;
+    plt::scatter(indices, sampleData);
+    plt::title("Sample Data Points");
+    plt::xlabel("Index");
+    plt::ylabel("Value");
+    plt::show();
+
+    // Plot confidence interval as horizontal lines using plot instead of hlines
+    plt::clf();
+    plt::scatter(indices, sampleData);
+    std::vector<double> mean_line_x = {0, static_cast<double>(sampleData.size() + 1)};
+    std::vector<double> mean_line_y = {InferentialStatistics::mean(sampleData), InferentialStatistics::mean(sampleData)};
+    plt::plot(mean_line_x, mean_line_y, {{"color", "red"}, {"label", "Mean"}});
+    std::vector<double> lower_ci_y = {ci.first, ci.first};
+    plt::plot(mean_line_x, lower_ci_y, {{"color", "green"}, {"label", "Lower CI"}});
+    std::vector<double> upper_ci_y = {ci.second, ci.second};
+    plt::plot(mean_line_x, upper_ci_y, {{"color", "blue"}, {"label", "Upper CI"}});
+    plt::title("Confidence Interval");
+    plt::legend();
+    plt::show();
+
+    // Plot linear regression line with data points
+    plt::clf();
+
+    // Declare x, y, slope, intercept here for plotting
+    std::vector<double> x = {1, 2, 3, 4, 5};
+    std::vector<double> y = {2, 4, 5, 4, 5};
+    double slope, intercept;
+    std::tie(slope, intercept) = InferentialStatistics::linearRegression(x, y);
+
+    plt::scatter(x, y);
+    std::vector<double> reg_line_x = x;
+    std::vector<double> reg_line_y;
+    for (auto val : x)
+        reg_line_y.push_back(slope * val + intercept);
+    plt::plot(reg_line_x, reg_line_y);
+    plt::title("Linear Regression");
+    plt::show();
 
     return 0;
 }
